@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekuu AI - Smart AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-cyan: #00d4ff;
+            --primary-purple: #a855f7;
+            --primary-blue: #3b82f6;
+            --bg-dark: #0a0a1a;
+            --bg-secondary: #12122a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+            --gradient-bg: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0f0f2a 100%);
+            --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.3);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 50px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 { width: 600px; height: 600px; background: var(--primary-purple); top: -200px; right: -100px; }
+        .orb-2 { width: 500px; height: 500px; background: var(--primary-cyan); bottom: -150px; left: -100px; animation-delay: -7s; }
+        .orb-3 { width: 400px; height: 400px; background: var(--primary-blue); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -14s; opacity: 0.2; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled { padding: 0.75rem 2rem; background: rgba(10, 10, 26, 0.95); }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover { color: var(--text-primary); }
+        .nav-link:hover::after { width: 100%; }
+
+        .nav-buttons { display: flex; gap: 1rem; }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-lg { padding: 1rem 2rem; font-size: 1rem; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content { max-width: 900px; text-align: center; }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1.25rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            color: var(--primary-cyan);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero-title .gradient-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-buttons .btn { min-width: 180px; justify-content: center; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Features */
+        .features { padding: 6rem 2rem; position: relative; z-index: 1; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+
+        .section-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--primary-purple);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-title { font-size: 2.75rem; font-weight: 700; margin-bottom: 1rem; }
+        .section-subtitle { font-size: 1.125rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.25);
+        }
+
+        .feature-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .feature-description { color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.5rem; }
+
+        .feature-list { list-style: none; }
+        .feature-list li { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); padding: 0.5rem 0; font-size: 0.925rem; }
+        .feature-list li i { color: var(--primary-cyan); font-size: 0.75rem; }
+
+        /* How It Works */
+        .how-it-works { padding: 6rem 2rem; background: rgba(0, 0, 0, 0.2); position: relative; z-index: 1; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+        .step-card { text-align: center; padding: 2rem; }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+        }
+        .step-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .step-description { color: var(--text-secondary); font-size: 0.95rem; }
+
+        /* Footer */
+        .footer { padding: 4rem 2rem 2rem; border-top: 1px solid var(--border-color); position: relative; z-index: 1; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; }
+        .footer-brand { max-width: 300px; }
+        .footer-brand .logo { margin-bottom: 1rem; }
+        .footer-description { color: var(--text-secondary); font-size: 0.925rem; line-height: 1.7; margin-bottom: 1.5rem; }
+        .footer-social { display: flex; gap: 1rem; }
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .social-link:hover { background: var(--gradient-primary); color: var(--text-primary); transform: translateY(-3px); }
+        .footer-column h4 { font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.925rem; transition: color 0.3s ease; }
+        .footer-links a:hover { color: var(--primary-cyan); }
+        .footer-bottom { max-width: 1200px; margin: 3rem auto 0; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.875rem; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 3rem; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero { padding: 7rem 1.5rem 3rem; }
+            .hero-title { font-size: 2.25rem; }
+            .hero-subtitle { font-size: 1.1rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .hero-buttons .btn { width: 100%; max-width: 280px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .feature-card { padding: 2rem; }
+            .section-title { font-size: 2rem; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .footer-brand { max-width: 100%; }
+            .footer-social { justify-content: center; }
+            .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+
+        @media (max-width: 480px) {
+            .navbar { padding: 0.75rem 1rem; }
+            .logo-text { font-size: 1.25rem; }
+            .logo-icon { width: 38px; height: 38px; font-size: 1.2rem; }
+            .btn { padding: 0.625rem 1.25rem; font-size: 0.875rem; }
+            .hero-title { font-size: 1.875rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-gradient-orb orb-1"></div>
+        <div class="bg-gradient-orb orb-2"></div>
+        <div class="bg-gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <div class="logo-icon"><i class="fas fa-robot"></i></div>
+                <span class="logo-text">Rekuu AI</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#about" class="nav-link">About</a>
+            </div>
+            
+            <div class="nav-buttons">
+                <a href="/login" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="/register" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+            
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-star"></i> Powered by Advanced AI</div>
+            
+            <h1 class="hero-title">Meet <span class="gradient-text">Rekuu AI</span> – Your Smart AI Assistant</h1>
+            
+            <p class="hero-subtitle">
+                Chat, analyze images, and process documents using advanced AI. Experience the future of intelligent assistance with our powerful, user-friendly chatbot platform.
+            </p>
+            
+            <div class="hero-buttons">
+                <a href="/register" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Get Started Free</a>
+                <a href="/login" class="btn btn-outline btn-lg"><i class="fas fa-comments"></i> Login to Chat</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Powerful AI Capabilities</h2>
+                <p class="section-subtitle">Experience the next generation of AI-powered assistance with our comprehensive suite of tools.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                    <h3 class="feature-title">Smart Chat</h3>
+                    <p class="feature-description">Experience intelligent conversations powered by advanced Large Language Models. Get context-aware responses.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Context-aware responses</li>
+                        <li><i class="fas fa-check-circle"></i> Multi-turn conversations</li>
+                        <li><i class="fas fa-check-circle"></i> Code assistance</li>
+                        <li><i class="fas fa-check-circle"></i> 24/7 availability</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-image"></i></div>
+                    <h3 class="feature-title">Image Analysis</h3>
+                    <p class="feature-description">Upload images and get intelligent descriptions. Our AI can analyze visual content and provide insights.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Detailed image descriptions</li>
+                        <li><i class="fas fa-check-circle"></i> Object recognition</li>
+                        <li><i class="fas fa-check-circle"></i> Scene understanding</li>
+                        <li><i class="fas fa-check-circle"></i> Text extraction (OCR)</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3 class="feature-title">File Processing</h3>
+                    <p class="feature-description">Analyze and summarize documents instantly. Process PDFs, Word documents, and more with AI-powered insights.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> PDF analysis</li>
+                        <li><i class="fas fa-check-circle"></i> Document summarization</li>
+                        <li><i class="fas fa-check-circle"></i> CSV data insights</li>
+                        <li><i class="fas fa-check-circle"></i> Key information extraction</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">How It Works</span>
+                <h2 class="section-title">Get Started in Minutes</h2>
+                <p class="section-subtitle">Three simple steps to start using Rekuu AI</p>
+            </div>
+            
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4 class="step-title">Create Account</h4>
+                    <p class="step-description">Sign up for free in seconds. Just enter your name, email, and create a password.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4 class="step-title">Start Chatting</h4>
+                    <p class="step-description">Type your message, upload an image, or attach a document to get AI-powered responses.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">Get Results</h4>
+                    <p class="step-description">Receive instant, intelligent responses tailored to your needs. It's that simple!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="about">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <div class="logo-icon"><i class="fas fa-robot"></i></div>
+                    <span class="logo-text">Rekuu AI</span>
+                </a>
+                <p class="footer-description">Rekuu AI is your smart AI assistant that helps with conversations, image analysis, and document processing using advanced AI technology.</p>
+                <div class="footer-social">
+                    <a href="https://github.com/saikrishnamunaga" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Rekuu AI. All rights reserved.</p>
+            <p>Powered by Groq API</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
